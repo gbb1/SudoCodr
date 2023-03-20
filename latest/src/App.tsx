@@ -11,7 +11,10 @@ import Auth from './views/Auth'
 import Editor from './views/Editor'
 import Library from './views/Library'
 import Problems from './views/Problems'
+import SignUp from './views/SignUp'
 import Navbar from './components/Navbar'
+
+// import AuthRoute from './components/AuthRoute';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -22,9 +25,9 @@ function App() {
       <div>
         <Router>
           <Routes>
-            <Route path="/" element={<Test />} />
+            <Route path="/" element={<Library />} />
+            <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Auth />} />
-            <Route path="/library" element={<Library />} />
             <Route path="/problems" element={<Problems />} />
             <Route path="/code" element={<Editor />} />
           </Routes>

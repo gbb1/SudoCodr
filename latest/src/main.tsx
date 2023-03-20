@@ -13,7 +13,7 @@ import { AuthProvider } from './Auth/AuthProvider';
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <AuthProvider>
-      <App />
+        <App />
     </AuthProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
 )

@@ -21,18 +21,16 @@ function App() {
 
   return (
     <div className="App">
-      <Navbar />
-      <div>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Library />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/login" element={<Auth />} />
-            <Route path="/problems" element={<Problems />} />
-            <Route path="/code" element={<Editor />} />
-          </Routes>
-        </Router>
-      </div>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Library />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Auth />} />
+          <Route path="/problems" element={<Problems />} />
+          <Route path="/code" element={<Editor />} />
+        </Routes>
+      </Router>
     </div>
   )
 }

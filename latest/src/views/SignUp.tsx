@@ -19,10 +19,10 @@ export default function SignUp() {
 
   const signUp = (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (pw === pw2) {
+    if (pw === pw2 && pw.length > 0 && email.length > 0) {
       createUserWithEmailAndPassword(auth, email, pw)
         .then((creds) => {
-          console.log(creds);
+          // console.log(creds);
           navigate('/')
         })
         .catch((err) => {

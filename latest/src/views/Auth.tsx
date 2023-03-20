@@ -16,8 +16,6 @@ export default function Auth() {
   const [email, setEmail] = useState('')
   const [pw, setPw] = useState('')
 
-  // const { createUser } = userAuth()
-
   const signInWithGoogle = async (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
@@ -33,28 +31,24 @@ export default function Auth() {
 
   const signInOrganic = async (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log('trying organic sign in')
-    signInWithEmailAndPassword(auth, email, pw)
-      .then((creds) => {
-        console.log(creds);
-        navigate('/');
-      })
-      .catch((err) => {
-        console.log(err);
-      })
+
+    if (email.length > 0 && pw.length > 0) {
+      signInWithEmailAndPassword(auth, email, pw)
+        .then((creds) => {
+          console.log(creds);
+          navigate('/');
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+    }
   }
 
   const signUpNav = (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    navigate('/signup')
+    console.log('what is going on');
+    navigate('/signup');
   }
-    // try {
-    //   await createUser(email, pw);
-    // } catch (err:any) {
-    //   console.log(err.message)
-    // }
-
-
 
   return (
     <div className="border-2 flex justify-center">

@@ -33,7 +33,7 @@ export default function Auth() {
 
   const signInOrganic = async (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-
+    console.log('trying organic sign in')
     signInWithEmailAndPassword(auth, email, pw)
       .then((creds) => {
         console.log(creds);
@@ -74,7 +74,7 @@ export default function Auth() {
         <button
           type="submit"
           className="btn"
-          onClick={() => {}} >
+          onClick={signInOrganic} >
             Submit
         </button>
         <button

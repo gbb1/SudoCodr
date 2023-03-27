@@ -9,8 +9,13 @@ import { AnyArray } from 'mongoose';
 export default function Editor() {
 
   const [lines, setLines] = useState([''])
+  const [linesFull, setLinesFull] = useState([['', 0]]);
+
   const [line, setLine] = useState('');
   const [index, setIndex] = useState(0);
+
+  const [tabs, setTabs] = useState(0);
+  const [tabIndex, setTabIndex] = useState(0);
 
   const [edit, setEdit] = useState(false);
 
@@ -19,7 +24,7 @@ export default function Editor() {
   }
   const linesRefs = useRef<refsObject>({});
 
-  const divRef = useRef(null);
+  // const divRef = useRef(null);
 
   const handleKey = (e:any) => {
     if (e.keyCode === 13) {
@@ -32,23 +37,48 @@ export default function Editor() {
         setLine(linesRefs.current[id].textContent);
       }
       setIndex(id);
-
     }
 
+    if (e.keyCode === 9) {
+      e.preventDefault();
+      // console.log('tab');
+      if (tabs < 5) {
+        setTabs(tabs + 1);
+      }
+    }
+
+    if (e.keyCode === 9 && e.shiftKey) {
+      e.preventDefault();
+      if (tabs > 0) {
+        setTabs(tabs - 1);
+      }
+    }
   }
+
+  useEffect(() => {
+    console.log(linesFull);
+  }, [tabs]);
 
   useEffect(() => {
     if (line.length !== 0) {
       let newLines;
-      // console.log('edit', edit);
+      let newFullLines;
+
       if (!edit) {
-        newLines = lines.slice(0, index + 1).concat('').concat(lines.slice(index + 1));
+        // newLines = lines.slice(0, index + 1).concat('').concat(lines.slice(index + 1));
+        newFullLines = linesFull.slice(0, index + 1);
+        newFullLines.push(['', 0]);
+        newFullLines.concat(linesFull.slice(index + 1));
+        // console.log(newFullLines);
       } else {
-        newLines = lines.slice(0);
+        // newLines = lines.slice(0);
+        newFullLines = linesFull.slice(0);
       }
-      newLines[index] = line;
-      console.log(newLines, index);
-      setLines(newLines)
+      // newLines[index] = line;
+      newFullLines[index] = [line, tabs];
+      // console.log(newLines, index);
+      // setLines(newLines);
+      setLinesFull(newFullLines);
     }
   }, [line])
 
@@ -58,7 +88,14 @@ export default function Editor() {
     if (i + 1 in linesRefs.current) {
       linesRefs.current[i + 1].focus();
     }
-  }, [lines])
+
+  }, [linesFull])
+
+  useEffect(() => {
+    let tabLines = linesFull.slice(0);
+    tabLines[tabIndex][1] = tabs;
+    setLinesFull(tabLines);
+  }, [tabs])
 
   function blurHandler(e:any) {
     e.preventDefault();
@@ -66,12 +103,26 @@ export default function Editor() {
 
     const id: number = Number(e.target.id);
 
-      if (id in linesRefs.current) {
-        setLine(linesRefs.current[id].textContent);
-      }
-      setIndex(id);
+    if (id in linesRefs.current) {
+      setLine(linesRefs.current[id].textContent);
+    }
+
+    if (id in linesRefs.current) {
+      setLine(linesRefs.current[id].textContent);
+    }
+
+    setIndex(id);
   }
 
+  function clickHandler(e:any) {
+    e.preventDefault();
+    setEdit(!edit);
+
+    const id = Number(e.target.id);
+    const tabCount = Number(linesFull[id][1]);
+    setTabs(tabCount);
+    setTabIndex(Number(e.target.id));
+  }
 
   return (
     <div className="flex justify-center">
@@ -84,21 +135,23 @@ export default function Editor() {
         </div>
         <div className="flex flex-col gap-2">
           {
-            lines.map((l, index:number) => {
+            linesFull.map((l, index:number) => {
+              const indent = 5 * Number(l[1]);
               return (
                 <div className="flex" key={`input-${index}`}>
                   <div
                     id={`${index}`}
                     ref={(element:any) => linesRefs.current[index] = element} // refsArray.current[index](element)}
                     contentEditable={true}
+                    style={{ marginLeft: `${indent}px` }}
                     suppressContentEditableWarning={true}
                     className="p-3 bg-white rounded-md max-w-screen-sm"
-                    onChange={(e) => console.log('typing')}
+                    // onChange={(e) => console.log('typing')}
                     onKeyDown={handleKey}
-                    onClick={(e) => {setEdit(!edit)}}
+                    onClick={clickHandler}
                     onBlur={blurHandler}
                     >
-                      {l}
+                      {l[0]}
                   </div>
                 </div>
               )

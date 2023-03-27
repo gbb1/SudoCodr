@@ -4,11 +4,23 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import {
   BrowserRouter as Router, Link, Route, Routes,
 } from 'react-router-dom';
+import { AnyArray } from 'mongoose';
 
 export default function Editor() {
 
   const [lines, setLines] = useState([''])
   const [line, setLine] = useState('');
+  const [index, setIndex] = useState(0);
+
+  // interface refArray {
+  //   [index: number]: any;
+  // }
+  const refsArray = useRef<any[]>([]);
+
+  interface refsObject {
+    [index: number]: any;
+  }
+  const linesRefs = useRef<refsObject>({});
 
   const divRef = useRef(null);
 
@@ -18,8 +30,14 @@ export default function Editor() {
       // Handle the "shift + enter" key press here
       console.log('Shift + Enter pressed!');
       if (divRef !== null) {
-        console.log(divRef.current.textContent);
-        setLine(divRef.current.textContent);
+        console.log('index:', e.target.id);
+        const id: number = Number(e.target.id);
+
+        // console.log('refsarray item,', refsArray.current[id], refsArray.current[id].textContent);
+        if (id in linesRefs.current) {
+          setLine(linesRefs.current[id].textContent);
+        }
+        setIndex(id);
       }
 
     }
@@ -28,8 +46,6 @@ export default function Editor() {
 
   useEffect(() => {
     if (line.length !== 0) {
-      const index = Number(divRef.current.id);
-
       let newLines = lines.slice(0, index + 1).concat('').concat(lines.slice(index + 1));
       newLines[index] = line;
       console.log(newLines, index);
@@ -38,7 +54,14 @@ export default function Editor() {
   }, [line])
 
   useEffect(() => {
-    divRef.current.focus();
+    console.log(index);
+    const i = index;
+    console.log('look at tthis,', refsArray.current[i + 1], refsArray.current);
+    if (i + 1 in linesRefs.current) {
+      linesRefs.current[i + 1].focus();
+    }
+    console.log(refsArray.current);
+    // refsArray.current = lines.map(() => refsArray)
   }, [lines])
 
   return (
@@ -52,17 +75,18 @@ export default function Editor() {
         </div>
         <div className="flex flex-col gap-2">
           {
-            lines.map((l, index) => {
+            lines.map((l, index:number) => {
               return (
                 <div className="flex" key={`input-${index}`}>
                   <div
                     id={`${index}`}
-                    ref={divRef}
+                    ref={(element:any) => linesRefs.current[index] = element} // refsArray.current[index](element)}
                     contentEditable={true}
                     suppressContentEditableWarning={true}
                     className="p-3 bg-white rounded-md max-w-screen-sm"
                     onChange={(e) => console.log('typing')}
                     onKeyDown={handleKey}
+                    onClick={(e) => {console.log('clicked')}}
                     >
                       {l}
                   </div>

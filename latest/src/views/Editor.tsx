@@ -12,10 +12,7 @@ export default function Editor() {
   const [line, setLine] = useState('');
   const [index, setIndex] = useState(0);
 
-  // interface refArray {
-  //   [index: number]: any;
-  // }
-  const refsArray = useRef<any[]>([]);
+  const [edit, setEdit] = useState(false);
 
   interface refsObject {
     [index: number]: any;
@@ -27,18 +24,14 @@ export default function Editor() {
   const handleKey = (e:any) => {
     if (e.keyCode === 13) {
       e.preventDefault();
-      // Handle the "shift + enter" key press here
-      console.log('Shift + Enter pressed!');
-      if (divRef !== null) {
-        console.log('index:', e.target.id);
-        const id: number = Number(e.target.id);
+      setEdit(false);
 
-        // console.log('refsarray item,', refsArray.current[id], refsArray.current[id].textContent);
-        if (id in linesRefs.current) {
-          setLine(linesRefs.current[id].textContent);
-        }
-        setIndex(id);
+      const id: number = Number(e.target.id);
+
+      if (id in linesRefs.current) {
+        setLine(linesRefs.current[id].textContent);
       }
+      setIndex(id);
 
     }
 
@@ -46,7 +39,13 @@ export default function Editor() {
 
   useEffect(() => {
     if (line.length !== 0) {
-      let newLines = lines.slice(0, index + 1).concat('').concat(lines.slice(index + 1));
+      let newLines;
+      // console.log('edit', edit);
+      if (!edit) {
+        newLines = lines.slice(0, index + 1).concat('').concat(lines.slice(index + 1));
+      } else {
+        newLines = lines.slice(0);
+      }
       newLines[index] = line;
       console.log(newLines, index);
       setLines(newLines)
@@ -54,15 +53,25 @@ export default function Editor() {
   }, [line])
 
   useEffect(() => {
-    console.log(index);
     const i = index;
-    console.log('look at tthis,', refsArray.current[i + 1], refsArray.current);
+
     if (i + 1 in linesRefs.current) {
       linesRefs.current[i + 1].focus();
     }
-    console.log(refsArray.current);
-    // refsArray.current = lines.map(() => refsArray)
   }, [lines])
+
+  function blurHandler(e:any) {
+    e.preventDefault();
+    setEdit(true);
+
+    const id: number = Number(e.target.id);
+
+      if (id in linesRefs.current) {
+        setLine(linesRefs.current[id].textContent);
+      }
+      setIndex(id);
+  }
+
 
   return (
     <div className="flex justify-center">
@@ -86,7 +95,8 @@ export default function Editor() {
                     className="p-3 bg-white rounded-md max-w-screen-sm"
                     onChange={(e) => console.log('typing')}
                     onKeyDown={handleKey}
-                    onClick={(e) => {console.log('clicked')}}
+                    onClick={(e) => {setEdit(!edit)}}
+                    onBlur={blurHandler}
                     >
                       {l}
                   </div>

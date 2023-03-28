@@ -18,6 +18,7 @@ export default function Editor() {
   const [tabIndex, setTabIndex] = useState(0);
 
   const [edit, setEdit] = useState(false);
+  const [del, setDel] = useState(false);
 
   interface refsObject {
     [index: number]: any;
@@ -53,11 +54,32 @@ export default function Editor() {
         setTabs(tabs - 1);
       }
     }
+
+    if (e.keyCode === 8 && e.shiftKey) {
+      e.preventDefault();
+
+      if (tabIndex > 0) {
+        setDel(true);
+      }
+
+    }
   }
 
   useEffect(() => {
+    if (del) {
+      let newLines = linesFull.splice(0);
+
+      newLines.splice(tabIndex, 1);
+      setLinesFull(newLines);
+      setTabIndex(tabIndex - 1);
+
+      delete linesRefs.current[tabIndex];
+    }
+  }, [del])
+
+  useEffect(() => {
     console.log(linesFull);
-  }, [tabs]);
+  }, [edit]);
 
   useEffect(() => {
     if (line.length !== 0) {
@@ -67,8 +89,8 @@ export default function Editor() {
       if (!edit) {
         // newLines = lines.slice(0, index + 1).concat('').concat(lines.slice(index + 1));
         newFullLines = linesFull.slice(0, index + 1);
-        newFullLines.push(['', 0]);
-        newFullLines.concat(linesFull.slice(index + 1));
+        newFullLines.push(['', tabs]);
+        newFullLines = newFullLines.concat(linesFull.slice(index + 1));
         // console.log(newFullLines);
       } else {
         // newLines = lines.slice(0);
@@ -85,8 +107,17 @@ export default function Editor() {
   useEffect(() => {
     const i = index;
 
-    if (i + 1 in linesRefs.current) {
+    console.log(index);
+
+    if (Number(i + 1) in linesRefs.current && !del) {
       linesRefs.current[i + 1].focus();
+      setTabIndex(i + 1);
+
+      // const nextTabs = Number(linesFull[i+1][1]);
+      // setTabs(nextTabs);
+    } else if (Number(tabIndex) in linesRefs.current && del) {
+      linesRefs.current[tabIndex].focus();
+      setDel(false);
     }
 
   }, [linesFull])
@@ -126,26 +157,26 @@ export default function Editor() {
 
   return (
     <div className="flex justify-center">
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-5 border-2 w-6/12">
         Where you code out a problem
-        <div className="h-auto">
+        {/* <div className="h-auto">
           <textarea id="game-text"
             className="bg-white p-3 rounded-md resize-none border-2 h-auto overflow-hidden min-h-10 min-w-min w-auto max-w-100"
             placeholder="Start it up" onChange={(e) => {console.log(e.target.value)}} />
-        </div>
-        <div className="flex flex-col gap-2">
+        </div> */}
+        <div className="flex flex-col gap-2 border-2">
           {
             linesFull.map((l, index:number) => {
-              const indent = 5 * Number(l[1]);
+              const indent = 10 * Number(l[1]);
               return (
-                <div className="flex" key={`input-${index}`}>
+                <div className="flex border-4" key={`input-${index}`}>
                   <div
                     id={`${index}`}
                     ref={(element:any) => linesRefs.current[index] = element} // refsArray.current[index](element)}
                     contentEditable={true}
                     style={{ marginLeft: `${indent}px` }}
                     suppressContentEditableWarning={true}
-                    className="p-3 bg-white rounded-md max-w-screen-sm"
+                    className="p-3 bg-white rounded-md max-w-full"
                     // onChange={(e) => console.log('typing')}
                     onKeyDown={handleKey}
                     onClick={clickHandler}
